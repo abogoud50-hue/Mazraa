@@ -1,0 +1,385 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>مزرعتي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Tajawal:wght@500;700;800&display=swap">
+<style>
+/* التصميم: مزرعة من الأعلى. لوحة خشبية للعنوان، حقل 5×6 داخل سياج خشبي،
+   شريط بذور، أزرار جماعية، والسوق نافذة تصعد من الأسفل. اللعبة بمظهر نهاري واحد بقصد. */
+:root{
+  --ink:#3b2414; --wood:#9a6233; --wood-d:#62391b; --wood-l:#c98b4c;
+  --grass:#79c04a; --grass-d:#58a033; --grass-l:#9ad66b;
+  --soil:#8d5a34; --soil-d:#6d4224;
+  --coin:#f7c52c; --coin-d:#b8820a; --leaf:#3d8a2b;
+  --panel:#fffdf7; --sky-1:#9fd8ec; --sky-2:#d3f0f2; --meadow:#c9e9a8;
+  --font-display:'Lalezar','Tajawal',system-ui,'Segoe UI',Tahoma,sans-serif;
+  --font-body:'Tajawal',system-ui,'Segoe UI',Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--meadow) linear-gradient(180deg,var(--sky-1) 0,var(--sky-2) 280px,var(--meadow) 420px) no-repeat;
+  color:var(--ink);
+  font:500 16px/1.4 var(--font-body);
+  -webkit-text-size-adjust:100%;
+}
+button{font:inherit;color:inherit}
+.app{
+  max-width:520px;margin:0 auto;display:grid;gap:12px;
+  padding-block:12px 28px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sign{
+  margin:0;padding:2px 18px 4px;
+  font:400 28px/1.2 var(--font-display);color:#fff;
+  background:linear-gradient(var(--wood-l),var(--wood));
+  border:3px solid var(--wood-d);border-radius:12px;
+  box-shadow:0 4px 0 var(--wood-d);text-shadow:0 2px 0 var(--wood-d);
+}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--panel);border:3px solid var(--wood-d);border-radius:999px;
+  padding:3px 14px;font-weight:800;font-size:19px;box-shadow:0 3px 0 var(--wood-d);
+  font-variant-numeric:tabular-nums;
+}
+.chip svg{width:24px;height:24px}
+.stats{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.xp{min-width:0}
+.xp-line{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.track{height:16px;margin-top:3px;background:#fff;border:3px solid var(--wood-d);border-radius:99px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--leaf);transition:width .4s}
+.barn{
+  display:grid;text-align:center;line-height:1.15;cursor:pointer;
+  padding:4px 14px;background:var(--panel);border:3px solid var(--wood-d);border-radius:14px;
+  box-shadow:0 3px 0 var(--wood-d);font-variant-numeric:tabular-nums;
+}
+.barn small{font-size:11px;font-weight:700;color:#6d4a2d}
+.barn b{font-size:15px}
+.barn.full{background:#ffd9d3}
+
+.field{
+  position:relative;background:var(--grass-d);
+  border:4px solid var(--wood-d);border-radius:20px;padding:8px;
+  box-shadow:0 5px 0 var(--wood-d);
+}
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.tile{
+  position:relative;aspect-ratio:1;min-width:0;border:0;padding:0;overflow:hidden;
+  border-radius:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.tile:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.tile:active{filter:brightness(1.08)}
+.art{position:absolute;inset:8%;display:grid;place-items:center;transform-origin:50% 85%;transition:transform .5s}
+.art svg{width:100%;height:100%}
+.tag{
+  position:absolute;inset-inline:3px;bottom:3px;padding:3px 2px;border-radius:8px;
+  background:rgba(59,36,20,.82);color:#fff;text-align:center;
+  font:800 11px/1 var(--font-body);font-variant-numeric:tabular-nums;
+}
+.tag:empty{display:none}
+.tag .ic{width:11px;height:11px;vertical-align:-1px;margin-inline-start:2px}
+.bar{position:absolute;inset-inline-start:0;bottom:0;height:4px;width:var(--p,0%);background:var(--coin)}
+.tile:not(.grow) .bar{display:none}
+.locked{background:#a7d97c;outline:2px dashed rgba(255,255,255,.8);outline-offset:-5px}
+.locked.far{opacity:.45}
+.locked .art{inset:20%;color:var(--wood-d);opacity:.6}
+.grass{
+  background:
+    radial-gradient(circle at 22% 28%,var(--grass-l) 0 3px,transparent 4px),
+    radial-gradient(circle at 72% 60%,var(--grass-l) 0 3px,transparent 4px),
+    radial-gradient(circle at 46% 84%,var(--grass-d) 0 2px,transparent 3px),
+    var(--grass);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.14);
+}
+.soil,.grow,.ready{
+  background:repeating-linear-gradient(0deg,var(--soil) 0 9px,var(--soil-d) 9px 12px);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.2);
+}
+.grow.st0 .art{transform:scale(.5)}
+.grow.st1 .art{transform:scale(.8)}
+.ready{box-shadow:inset 0 0 0 3px var(--coin),inset 0 -4px 0 rgba(0,0,0,.2)}
+.ready .art{animation:hop 1.3s ease-in-out infinite}
+.ready .tag{background:var(--coin);color:var(--ink)}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.pop{
+  position:absolute;z-index:3;pointer-events:none;white-space:nowrap;
+  font:400 17px/1 var(--font-display);color:#fff;text-shadow:0 2px 0 var(--wood-d);
+  animation:rise .9s ease-out forwards;
+}
+@keyframes rise{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-40px)}}
+
+.say{
+  min-height:48px;display:grid;place-items:center;text-align:center;padding:8px 12px;
+  background:var(--panel);border:3px solid var(--wood-d);border-radius:14px;font-weight:700;
+}
+.label{margin:0 2px -6px;font-size:13px;font-weight:800}
+.seeds{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.seed{
+  min-width:0;display:grid;justify-items:center;gap:2px;padding:6px 2px;cursor:pointer;
+  background:var(--panel);border:3px solid var(--wood-d);border-radius:14px;box-shadow:0 3px 0 var(--wood-d);
+  transition:transform .15s;
+}
+.seed .big{width:34px;height:34px}
+.seed b{font-size:14px}
+.seed small{font-size:11px;font-weight:700;color:#6d4a2d;font-variant-numeric:tabular-nums}
+.seed small .ic{width:11px;height:11px;vertical-align:-1px}
+.seed.on{background:#fff0b0;border-color:var(--coin-d);box-shadow:0 3px 0 var(--coin-d);transform:translateY(-2px)}
+.seed.lock{opacity:.55}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.btn{
+  cursor:pointer;padding:10px 6px;border:3px solid var(--wood-d);border-radius:14px;
+  font:400 19px/1.1 var(--font-display);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25);
+  box-shadow:0 4px 0 var(--wood-d);
+}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--wood-d)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.green{background:var(--leaf)}
+.btn.gold{background:var(--coin);color:var(--ink);text-shadow:none}
+.btn.wood{background:var(--wood)}
+.btn small{font:800 13px/1 var(--font-body)}
+.btn .ic{width:16px;height:16px;vertical-align:-2px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#4d3320}
+.link{background:none;border:0;padding:8px 4px;text-decoration:underline;cursor:pointer}
+.ic{width:1.1em;height:1.1em;vertical-align:-.2em}
+
+.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;background:rgba(59,36,20,.55)}
+.panel{
+  width:100%;max-width:520px;max-height:82vh;overflow:auto;
+  background:var(--panel);border:4px solid var(--wood-d);border-bottom:0;border-radius:22px 22px 0 0;
+  padding:14px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.phead h2{margin:0;font:400 28px/1.2 var(--font-display)}
+.phead .chip{font-size:16px;box-shadow:none}
+.x{width:44px;height:44px;border-radius:50%;border:3px solid var(--wood-d);background:#fff;font-size:24px;line-height:1;cursor:pointer}
+.rows{list-style:none;margin:8px 0 14px;padding:0}
+.row{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:2px dashed #e5d3b8}
+.row .big{width:40px;height:40px}
+.row b{display:block;font-size:16px}
+.row small{font-size:12px;font-weight:700;color:#6d4a2d;font-variant-numeric:tabular-nums}
+.row .btn{padding:8px 12px;font-size:16px}
+.panel>.btn{width:100%}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#f7c52c" stroke="#b8820a" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="none" stroke="#e0a514" stroke-width="1.6"/><path d="M8 8.5a5.5 5.5 0 0 1 3-1.4" stroke="#fff" stroke-width="1.4" stroke-linecap="round" fill="none" opacity=".7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".25"/><path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 48 48"><ellipse cx="24" cy="43" rx="9" ry="2.5" fill="#000" opacity=".15"/><path d="M24 43V26" stroke="#3a7d2c" stroke-width="3" stroke-linecap="round"/><path d="M24 29C14 29 9 22 9 14c9 0 15 5 15 15z" fill="#5fb548"/><path d="M24 25C24 16 30 9 40 9c0 9-6 16-16 16z" fill="#79c94f"/></symbol>
+  <symbol id="i-wheat" viewBox="0 0 48 48"><g stroke="#7b8f2a" stroke-width="2.4" stroke-linecap="round"><path d="M13 43V25M24 43V12M35 43V25"/></g><g fill="#eab43c" stroke="#b9831a" stroke-width="1"><ellipse cx="24" cy="9" rx="3" ry="4.2"/><ellipse cx="20.2" cy="15" rx="3" ry="4.2" transform="rotate(-25 20.2 15)"/><ellipse cx="27.8" cy="15" rx="3" ry="4.2" transform="rotate(25 27.8 15)"/><ellipse cx="20.2" cy="22" rx="3" ry="4.2" transform="rotate(-25 20.2 22)"/><ellipse cx="27.8" cy="22" rx="3" ry="4.2" transform="rotate(25 27.8 22)"/><ellipse cx="13" cy="21" rx="2.6" ry="3.8"/><ellipse cx="10.2" cy="27" rx="2.6" ry="3.8" transform="rotate(-25 10.2 27)"/><ellipse cx="15.8" cy="27" rx="2.6" ry="3.8" transform="rotate(25 15.8 27)"/><ellipse cx="35" cy="21" rx="2.6" ry="3.8"/><ellipse cx="32.2" cy="27" rx="2.6" ry="3.8" transform="rotate(-25 32.2 27)"/><ellipse cx="37.8" cy="27" rx="2.6" ry="3.8" transform="rotate(25 37.8 27)"/></g></symbol>
+  <symbol id="i-corn" viewBox="0 0 48 48"><path d="M24 5c7 3 9 14 7 27-1 7-13 7-14 0-2-13 0-24 7-27z" fill="#f4c62f" stroke="#c99710" stroke-width="1.2"/><path d="M20 14h8M19.5 20h9M19 26h10M19.5 32h9M24 8v26" stroke="#d9a516" stroke-width="1.2" fill="none"/><path d="M24 44C11 40 8 27 12 15c7 6 11 17 12 29z" fill="#4f9a3a"/><path d="M24 44C37 40 40 27 36 15c-7 6-11 17-12 29z" fill="#63b247"/></symbol>
+  <symbol id="i-tomato" viewBox="0 0 48 48"><circle cx="24" cy="28" r="15" fill="#e2483d"/><ellipse cx="18.5" cy="22" rx="4" ry="2.6" fill="#fff" opacity=".35" transform="rotate(-30 18.5 22)"/><g fill="#3f9a46"><ellipse cx="24" cy="14" rx="2.4" ry="5"/><ellipse cx="18" cy="16.5" rx="2.4" ry="5" transform="rotate(-55 18 16.5)"/><ellipse cx="30" cy="16.5" rx="2.4" ry="5" transform="rotate(55 30 16.5)"/></g><path d="M24 11V6" stroke="#3a7d2c" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-melon" viewBox="0 0 48 48"><ellipse cx="24" cy="28" rx="19" ry="15" fill="#3f9a46"/><g stroke="#2a6f33" stroke-width="3" stroke-linecap="round" fill="none"><path d="M24 13.5V42.5"/><path d="M14 15.5C9 24 9 33 14 40.5"/><path d="M34 15.5C39 24 39 33 34 40.5"/></g><ellipse cx="16" cy="21" rx="4" ry="2.4" fill="#fff" opacity=".28" transform="rotate(-35 16 21)"/><path d="M24 13c0-4 2-6 5-7" stroke="#6b7a2a" stroke-width="2.4" stroke-linecap="round" fill="none"/></symbol>
+</svg>
+
+<div class="app" dir="rtl" lang="ar">
+  <div class="top">
+    <h1 class="sign">مزرعتي</h1>
+    <div class="chip" aria-label="رصيدك من العملات"><svg aria-hidden="true"><use href="#i-coin"/></svg><b id="coins">0</b></div>
+  </div>
+
+  <div class="stats">
+    <div class="xp">
+      <div class="xp-line"><span>المستوى <span id="lvl">1</span></span><span id="xptxt"></span></div>
+      <div class="track"><div class="fill" id="xpfill"></div></div>
+    </div>
+    <button type="button" class="barn" id="barn" aria-label="المخزن، افتح السوق"><small>المخزن</small><b id="barnTxt">0 / 40</b></button>
+  </div>
+
+  <div class="field" id="field"><div class="board" id="board"></div></div>
+
+  <div class="say" id="say" aria-live="polite"></div>
+
+  <p class="label">اختر البذور</p>
+  <div class="seeds" id="seeds"></div>
+
+  <div class="actions">
+    <button type="button" class="btn green" id="plantAll">زرع الكل</button>
+    <button type="button" class="btn gold" id="harvestAll">حصاد الكل</button>
+    <button type="button" class="btn wood" id="market">السوق</button>
+  </div>
+
+  <div class="foot">
+    <span>يُحفظ تقدمك تلقائياً في هذا المتصفح</span>
+    <button type="button" class="link" id="reset">ابدأ من جديد</button>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="mt" dir="rtl" lang="ar">
+    <div class="phead">
+      <h2 id="mt">السوق</h2>
+      <div class="chip"><svg aria-hidden="true"><use href="#i-coin"/></svg><b id="mcoins">0</b></div>
+      <button type="button" class="x" id="close" aria-label="إغلاق">×</button>
+    </div>
+    <ul class="rows" id="rows"></ul>
+    <button type="button" class="btn gold" id="sellAll"></button>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+try{document.documentElement.lang='ar';document.documentElement.dir='rtl'}catch(e){}
+
+const $=id=>document.getElementById(id);
+const CROPS=[
+  {id:'wheat', name:'قمح',   seed:2,  sell:5,   time:20,  xp:4,  lvl:1},
+  {id:'corn',  name:'ذرة',   seed:8,  sell:22,  time:60,  xp:10, lvl:2},
+  {id:'tomato',name:'طماطم', seed:20, sell:55,  time:150, xp:22, lvl:3},
+  {id:'melon', name:'بطيخ',  seed:60, sell:170, time:300, xp:50, lvl:5}
+];
+const byId={};CROPS.forEach(c=>{byId[c.id]=c});
+const COLS=5,ROWS=6,N=COLS*ROWS,CAP=40,KEY='mazraa-v1';
+
+const ico=(id,cls)=>'<svg class="'+(cls||'ic')+'" aria-hidden="true"><use href="#i-'+id+'"/></svg>';
+const fmtN=n=>Number(n).toLocaleString('en-US');
+const fmtT=s=>s<60?s+'ث':Math.floor(s/60)+'د'+(s%60?' '+(s%60)+'ث':'');
+const need=l=>25*l+15;
+
+function fresh(){
+  const tiles=Array.from({length:N},()=>({s:0,c:'',t:0}));
+  for(let r=2;r<=4;r++)for(let c=1;c<=3;c++)tiles[r*COLS+c].s=1;
+  const barn={};CROPS.forEach(c=>{barn[c.id]=0});
+  return {v:1,coins:30,xp:0,lvl:1,tiles:tiles,barn:barn,seed:'wheat',seen:0};
+}
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);if(!raw)return null;
+    const d=JSON.parse(raw);
+    if(!d||d.v!==1||!Array.isArray(d.tiles)||d.tiles.length!==N)return null;
+    return d;
+  }catch(e){return null}
+}
+function save(){try{S.seen=Date.now();localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+let S=load();
+const returning=!!S;
+if(!S)S=fresh();
+CROPS.forEach(c=>{if(typeof S.barn[c.id]!=='number')S.barn[c.id]=0});
+if(!byId[S.seed])S.seed='wheat';
+S.tiles.forEach(t=>{if(t.s===3&&!byId[t.c]){t.s=2;t.c='';t.t=0}});
+
+const total=()=>CROPS.reduce((a,c)=>a+S.barn[c.id],0);
+const owned=()=>S.tiles.filter(t=>t.s>0).length;
+const plotPrice=()=>Math.max(20,Math.round(20*Math.pow(1.25,owned()-9)/5)*5);
+function kind(t){
+  if(t.s===0)return 'locked';
+  if(t.s===1)return 'grass';
+  if(t.s===2)return 'soil';
+  return (Date.now()-t.t)>=byId[t.c].time*1000?'ready':'grow';
+}
+function canBuy(i){
+  const r=Math.floor(i/COLS),c=i%COLS,T=S.tiles;
+  return (r>0&&T[i-COLS].s>0)||(r<ROWS-1&&T[i+COLS].s>0)||(c>0&&T[i-1].s>0)||(c<COLS-1&&T[i+1].s>0);
+}
+
+/* ---------- الحقل ---------- */
+const board=$('board'),field=$('field'),els=[];
+for(let i=0;i<N;i++){
+  const b=document.createElement('button');
+  b.type='button';b.className='tile';b.dataset.i=i;
+  b.innerHTML='<span class="art"></span><span class="bar"></span><span class="tag"></span>';
+  board.appendChild(b);els.push(b);
+}
+board.addEventListener('click',e=>{const b=e.target.closest('.tile');if(b)tap(+b.dataset.i)});
+
+function paint(i){
+  const t=S.tiles[i],el=els[i],k=kind(t),c=byId[t.c];
+  let tag='',p=0,st=0,buy=false,label='';
+  if(k==='locked'){buy=canBuy(i);if(buy)tag=fmtN(plotPrice())+ico('coin');label=buy?'أرض للبيع':'أرض بعيدة'}
+  if(k==='grass')label='عشب، اضغط للحرث';
+  if(k==='soil')label='تربة محروثة، اضغط للزرع';
+  if(k==='grow'||k==='ready')p=Math.max(0,Math.min(1,(Date.now()-t.t)/(c.time*1000)));
+  if(k==='grow'){st=p<.4?0:1;tag=fmtT(Math.max(1,Math.ceil(c.time*(1-p))));label=c.name+' ينمو'}
+  if(k==='ready'){tag='جاهز';label=c.name+' جاهز للحصاد'}
+  const sig=k+(c?c.id:'')+st+(buy?'b':'');
+  if(el.dataset.sig!==sig){
+    el.dataset.sig=sig;
+    el.className='tile '+k+(k==='grow'?' st'+st:'')+(k==='locked'&&!buy?' far':'');
+    el.children[0].innerHTML=k==='grow'?ico('sprout',''):k==='ready'?ico(c.id,''):(k==='locked'&&buy?ico('plus',''):'');
+    el.setAttribute('aria-label',label);
+  }
+  if(el.dataset.tag!==tag){el.dataset.tag=tag;el.children[2].innerHTML=tag}
+  if(k==='grow')el.children[1].style.setProperty('--p',(p*100).toFixed(1)+'%');
+}
+
+function pop(i,text){
+  const el=els[i],p=document.createElement('span');
+  p.className='pop';p.textContent=text;
+  p.style.left=(el.offsetLeft+el.offsetWidth/2)+'px';
+  p.style.top=(el.offsetTop+6)+'px';
+  field.appendChild(p);
+  setTimeout(()=>p.remove(),1000);
+}
+
+/* ---------- الرسائل ---------- */
+let msg='',until=0;
+const bub=$('say');
+function hint(){
+  const ks=S.tiles.map(kind);
+  if(ks.includes('ready'))return 'محاصيل جاهزة! اضغط عليها لتحصدها';
+  if(total()>=CAP*0.75)return 'المخزن يمتلئ، افتح السوق وبع محصولك';
+  if(ks.includes('soil'))return 'اضغط التربة لتزرع '+byId[S.seed].name;
+  if(ks.includes('grass'))return 'اضغط العشب لتحرثه';
+  if(ks.includes('grow'))return 'المحاصيل تنمو حتى وأنت بعيد عن اللعبة';
+  return 'اشترِ أرضاً جديدة من المربعات الفاتحة';
+}
+function bubble(){
+  const t=Date.now()<until?msg:hint();
+  if(bub.textContent!==t)bub.textContent=t;
+}
+function say(m){msg=m;until=Date.now()+2800;bubble()}
+
+/* ---------- اللعب ---------- */
+function gain(x){
+  S.xp+=x;let up=false;
+  while(S.xp>=need(S.lvl)){S.xp-=need(S.lvl);S.lvl++;up=true}
+  if(up){
+    const u=CROPS.filter(c=>c.lvl===S.lvl);
+    say('مستوى '+S.lvl+'!'+(u.length?' فتحت بذور '+u.map(c=>c.name).join(' و '):''));
+  }
+}
+function plant(i){
+  const c=byId[S.seed];
+  if(S.lvl<c.lvl)return 'بذور '+c.name+' تفتح في المستوى '+c.lvl;
+  if(S.coins<c.seed)return 'رصيدك لا يكفي لبذور '+c.name;
+  S.coins-=c.seed;
+  const t=S.tiles[i];t.s=3;t.c=c.id;t.t=Date.now();
+  return '';
+}
+function harvest(i){
+  const t=S.tiles[i],c=byId[t.c];
+  if(total()>=CAP)return false;
+  S.barn[c.id]++;t.s=2;t.c='';t.t=0;
+  pop(i,'+'+c.xp+' خبرة');
+  gain(c.xp);
+  return true;
+}
+function tap(i){
+  const t=S.tiles[i],k=kind(t);
+  if(k==='locked'){
+    if(!canBuy(i)){say('اشترِ أرضاً بجانب أرضك أولاً');return}
+    const pr=plotPrice();
+    if(S.coins<pr){say('تحتاج '+fmtN(pr)+' عملة لشراء هذه الأرض');return}
+    S.coins-=pr;t.s=1;say('اشتريت أرضاً جديدة');
+  }else if(k==='grass'){
+    t.s=2;say('تم الحرث');
+  }else if(k==='soil'){
+    const r=plant(i);if(r){say(r);return}
+  }else if(k==='grow'){
+    const c=byId[t.c];say(c.name+' ينمو، باقي '+fmtT(Math.max(1,Math.ceil(c.time-(Date.now()-t.t)/1000))));return;
+  }else if(k==='ready'){
+    if(!harvest(i)){say('المخزن ممتلئ، بع من السوق');return}
+  }
+  changed();
+}
+$('plantAll').onclick=()=>{
+  let n=0,why='';
+  for(let i=0;i<N;i++){
+    if(kind(S.tiles[i])!=='soil')continue;
+    const r=plant(i);if(r){why=r;break}n++;
+  }
